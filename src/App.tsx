@@ -13,14 +13,14 @@ import {
   Text,
   Grid,
   Icon,
+  Toast,
+  Frame,
 } from "@shopify/polaris";
-
 import {
   AlertTriangleIcon,
   DeleteIcon,
   PlusIcon,
 } from "@shopify/polaris-icons";
-
 import Payment from "./PaymentMethod";
 import conditions from "./data/conditionsData";
 import "./App.css";
@@ -48,9 +48,15 @@ function App() {
     orderNumbers: {} as { [key: string]: string },
     newNames: {} as { [key: string]: string },
   });
-  
+  const [toastActive, setToastActive] = useState(false);
+
   const togglePopoverActive = useCallback(
     () => setPopoverActive((active) => !active),
+    []
+  );
+
+  const toggleToastActive = useCallback(
+    () => setToastActive((active) => !active),
     []
   );
 
@@ -97,6 +103,7 @@ function App() {
       conditions: selectedConditions,
     };
     console.log("Form submitted with data:", formData);
+    setToastActive(true);
   };
 
   const activator = (
@@ -108,16 +115,17 @@ function App() {
   );
 
   return (
-    <Page backAction={{ content: "rule", url: "/" }} title="Add Rule Settings">
-      <Grid gap={{ xs: "loose", md: "tight" }}>
-        <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 8, xl: 8 }}>
-          <Popover
-            active={popoverActive}
-            activator={activator}
-            preferredAlignment="left"
-            onClose={togglePopoverActive}
-          >
-            <ActionList
+    <Frame>
+      <Page backAction={{ content: "rule", url: "/" }} title="Add Rule Settings">
+        <Grid gap={{ xs: "loose", md: "tight" }}>
+          <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 8, xl: 8 }}>
+            <Popover
+              active={popoverActive}
+              activator={activator}
+              preferredAlignment="left"
+              onClose={togglePopoverActive}
+            >
+             <ActionList
               items={conditions.map((condition) => ({
                 content: (
                   <div className="flex items-start space-x-2">
@@ -135,194 +143,214 @@ function App() {
                 onAction: () => addCondition(condition),
               }))}
             />
-          </Popover>
+            </Popover>
 
-          <FormLayout>
-            <LegacyCard title="Conditions" sectioned>
-              {selectedConditions.length > 0 ? (
-                selectedConditions.map((condition) => (
-                  <div
-                    key={condition.id}
-                    style={{
-                      border: "1px solid #dfe3e8",
-                      padding: "10px",
-                      marginBottom: "10px",
-                      borderRadius: "4px",
-                    }}
-                  >
+            <FormLayout>
+              <LegacyCard title="Conditions" sectioned>
+                {selectedConditions.length > 0 ? (
+                  selectedConditions.map((condition) => (
                     <div
+                      key={condition.id}
                       style={{
-                        display: "flex",
-                        justifyContent: "space-between",
+                        border: "1px solid #dfe3e8",
+                        padding: "10px",
+                        marginBottom: "10px",
+                        borderRadius: "4px",
                       }}
                     >
-                      <strong>{condition.content}</strong>
-                      <Button
-                        icon={DeleteIcon}
-                        onClick={() => removeCondition(condition.id)}
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
                       >
-                        Remove
-                      </Button>
-                    </div>
-                    <div style={{ marginTop: "8px", color: "#5c5f62" }}>
-                      {condition.description}
-                    </div>
-                    {condition.content === "Collections" && (
-                      <div className="mt-4 grid grid-cols-2 gap-4">
-                        <Select
-                          label="Condition"
-                          options={[
-                            { label: "If found", value: "found" },
-                            { label: "If not found", value: "not_found" },
-                          ]}
-                          value={condition.collectionCondition || ""}
-                          onChange={(value) =>
-                            handleConditionChange(condition.id, "collectionCondition", value)
-                          }
-                        />
-                        <TextField
-                          label="Collections"
-                          placeholder="Enter collections"
-                          value={condition.collectionInput || ""}
-                          onChange={(value) =>
-                            handleConditionChange(condition.id, "collectionInput", value)
-                          }
-                          autoComplete="off"
-                        />
+                        <strong>{condition.content}</strong>
+                        <Button
+                          icon={DeleteIcon}
+                          onClick={() => removeCondition(condition.id)}
+                        >
+                          Remove
+                        </Button>
                       </div>
-                    )}
-                    {condition.content === "Products" && (
-                      <div className="mt-4 grid grid-cols-2 gap-4">
-                        <Select
-                          label="Apply if"
-                          options={[
-                            { label: "More than", value: "more_than" },
-                            { label: "Less than", value: "less_than" },
-                          ]}
-                          value={condition.productAmount || ""}
-                          onChange={(value) =>
-                            handleConditionChange(condition.id, "productAmount", value)
-                          }
-                        />
-                        <TextField
-                          label="Amount"
-                          type="number"
-                          placeholder="Enter amount"
-                          value={condition.productAmount || ""}
-                          onChange={(value) =>
-                            handleConditionChange(condition.id, "productAmount", value)
-                          }
-                          autoComplete="off"
-                        />
+                      <div style={{ marginTop: "8px", color: "#5c5f62" }}>
+                        {condition.description}
                       </div>
-                    )}
+                      {condition.content === "Collections" && (
+                        <div className="mt-4 grid grid-cols-2 gap-4">
+                          <Select
+                            label="Condition"
+                            options={[
+                              { label: "If found", value: "found" },
+                              { label: "If not found", value: "not_found" },
+                            ]}
+                            value={condition.collectionCondition || ""}
+                            onChange={(value) =>
+                              handleConditionChange(
+                                condition.id,
+                                "collectionCondition",
+                                value
+                              )
+                            }
+                          />
+                          <TextField
+                            label="Collections"
+                            placeholder="Enter collections"
+                            value={condition.collectionInput || ""}
+                            onChange={(value) =>
+                              handleConditionChange(
+                                condition.id,
+                                "collectionInput",
+                                value
+                              )
+                            }
+                            autoComplete="off"
+                          />
+                        </div>
+                      )}
+                      {condition.content === "Products" && (
+                        <div className="mt-4 grid grid-cols-2 gap-4">
+                          <Select
+                            label="Apply if"
+                            options={[
+                              { label: "More than", value: "more_than" },
+                              { label: "Less than", value: "less_than" },
+                            ]}
+                            value={condition.productAmount || ""}
+                            onChange={(value) =>
+                              handleConditionChange(
+                                condition.id,
+                                "productAmount",
+                                value
+                              )
+                            }
+                          />
+                          <TextField
+                            label="Amount"
+                            type="number"
+                            placeholder="Enter amount"
+                            value={condition.productAmount || ""}
+                            onChange={(value) =>
+                              handleConditionChange(
+                                condition.id,
+                                "productAmount",
+                                value
+                              )
+                            }
+                            autoComplete="off"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p>No conditions added yet</p>
+                )}
+              </LegacyCard>
+
+              <LegacyCard title="Rule Settings" sectioned>
+                <TextField
+                  label="Rule name"
+                  value={ruleName}
+                  onChange={setRuleName}
+                  placeholder="Enter rule name"
+                  autoComplete="off"
+                />
+                <div style={{ marginTop: "10px" }}>
+                  <div>
+                    <Checkbox
+                      label="Hide"
+                      tone="magic"
+                      checked={hide}
+                      onChange={() => setHide(!hide)}
+                    />
                   </div>
-                ))
-              ) : (
-                <p>No conditions added yet</p>
-              )}
-            </LegacyCard>
+                  <div>
+                    <Checkbox
+                      tone="magic"
+                      label="Sort"
+                      checked={sort}
+                      onChange={() => setSort(!sort)}
+                    />
+                  </div>
+                  <div>
+                    <Checkbox
+                      tone="magic"
+                      label="Rename"
+                      checked={rename}
+                      onChange={() => setRename(!rename)}
+                    />
+                  </div>
+                </div>
+                <div style={{ marginTop: "10px" }}>
+                  <Text as="span" fontWeight="bold">
+                    Match condition
+                  </Text>
+                  <div className="flex flex-col ">
+                    <RadioButton
+                      tone="magic"
+                      label="All specified conditions above must be met to change the payment methods"
+                      checked={matchCondition === "all"}
+                      onChange={() => setMatchCondition("all")}
+                    />
+                    <RadioButton
+                      tone="magic"
+                      label="Any of the specified conditions is sufficient to change the payment methods"
+                      checked={matchCondition === "any"}
+                      onChange={() => setMatchCondition("any")}
+                    />
+                  </div>
+                </div>
+              </LegacyCard>
 
-            <LegacyCard title="Rule Settings" sectioned>
-              <TextField
-                label="Rule name"
-                value={ruleName}
-                onChange={setRuleName}
-                placeholder="Enter rule name"
-                autoComplete="off"
+              <Payment
+                sort={sort}
+                rename={rename}
+                onChange={handlePaymentChange}
               />
-              <div style={{ marginTop: "10px" }}>
+            </FormLayout>
+
+            <div style={{ margin: "20px 0" }}>
+              <Button tone="critical" onClick={handleSubmit}>
+                Submit
+              </Button>
+            </div>
+          </Grid.Cell>
+
+          <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 4, xl: 4 }}>
+            <div className="rounded-xl bg-[#fff] mb-4 shadow-md">
+              <div className="bg-[#FDAE00] px-2 py-[10px] font-semibold flex items-center gap-2 rounded-t-xl">
                 <div>
-                  <Checkbox
-                    label="Hide"
-                    tone="magic"
-                    checked={hide}
-                    onChange={() => setHide(!hide)}
-                  />
+                  <Icon source={AlertTriangleIcon} />
                 </div>
-                <div>
-                  <Checkbox
-                    tone="magic"
-                    label="Sort"
-                    checked={sort}
-                    onChange={() => setSort(!sort)}
-                  />
-                </div>
-                <div>
-                  <Checkbox
-                    tone="magic"
-                    label="Rename"
-                    checked={rename}
-                    onChange={() => setRename(!rename)}
-                  />
-                </div>
+                No plan needed!
               </div>
-              <div style={{ marginTop: "10px" }}>
-                <Text as="span" fontWeight="bold">
-                  Match condition
-                </Text>
-                <div className="flex flex-col ">
-                  <RadioButton
-                    tone="magic"
-                    label="All specified conditions above must be met to change the payment methods"
-                    checked={matchCondition === "all"}
-                    onChange={() => setMatchCondition("all")}
-                  />
-                  <RadioButton
-                    tone="magic"
-                    label="Any of the specified conditions is sufficient to change the payment methods"
-                    checked={matchCondition === "any"}
-                    onChange={() => setMatchCondition("any")}
-                  />
-                </div>
+              <p className="p-2 py-3">Forever free for development store.</p>
+            </div>
+            <LegacyCard title="Support" sectioned>
+              <div className="mb-2">
+                <p>
+                  If you need assistance, please reach out to our support team
+                  using the button below.
+                </p>
               </div>
+              <Button>Contact support</Button>
             </LegacyCard>
-
-            <Payment
-              sort={sort}
-              rename={rename}
-              onChange={handlePaymentChange}
-            />
-          </FormLayout>
-
-          <div style={{ margin: "20px 0" }}>
-            <Button tone="critical" onClick={handleSubmit}>
-              Submit
-            </Button>
-          </div>
-        </Grid.Cell>
-
-        <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 4, xl: 4 }}>
-          <div className="rounded-xl bg-[#fff] mb-4 shadow-md">
-            <div className="bg-[#FDAE00] px-2 py-[10px] font-semibold flex items-center gap-2 rounded-t-xl">
-              <div>
-                <Icon source={AlertTriangleIcon} />
+            <LegacyCard title="Share logs" sectioned>
+              <div className="mb-2">
+                <p>
+                  If you need assistance, please reach out to our support team
+                  using the button below.
+                </p>
               </div>
-              No plan needed!
-            </div>
-            <p className="p-2 py-3">Forever free for development store.</p>
-          </div>
-          <LegacyCard title="Support" sectioned>
-            <div className="mb-2">
-              <p>
-                If you need assistance, please reach out to our support team
-                using the button below.
-              </p>
-            </div>
-            <Button>Contact support</Button>
-          </LegacyCard>
-          <LegacyCard title="Share logs" sectioned>
-            <div className="mb-2">
-              <p>
-                If you need assistance, please reach out to our support team
-                using the button below.
-              </p>
-            </div>
-            <Button>How to share logs</Button>
-          </LegacyCard>
-        </Grid.Cell>
-      </Grid>
-    </Page>
+              <Button>How to share logs</Button>
+            </LegacyCard>
+          </Grid.Cell>
+        </Grid>
+        {toastActive && (
+          <Toast content="Form submitted successfully! check console for data" onDismiss={toggleToastActive} />
+        )}
+      </Page>
+    </Frame>
   );
 }
 
