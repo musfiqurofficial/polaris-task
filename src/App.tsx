@@ -30,6 +30,9 @@ interface Condition {
   content: string;
   description: string;
   icon?: React.ComponentType;
+  collectionCondition?: string;
+  collectionInput?: string;
+  productAmount?: string;
 }
 
 function App() {
@@ -40,15 +43,12 @@ function App() {
   const [sort, setSort] = useState(false);
   const [rename, setRename] = useState(false);
   const [matchCondition, setMatchCondition] = useState("all");
-  const [collectionCondition, setCollectionCondition] = useState("");
-  const [collectionInput, setCollectionInput] = useState("");
-  const [productAmount, setProductAmount] = useState("");
   const [paymentData, setPaymentData] = useState({
     selectedMethods: [] as string[],
     orderNumbers: {} as { [key: string]: string },
     newNames: {} as { [key: string]: string },
   });
-
+  
   const togglePopoverActive = useCallback(
     () => setPopoverActive((active) => !active),
     []
@@ -73,6 +73,14 @@ function App() {
   const removeCondition = (id: number) => {
     setSelectedConditions((prev) =>
       prev.filter((condition) => condition.id !== id)
+    );
+  };
+
+  const handleConditionChange = (id: number, field: string, value: string) => {
+    setSelectedConditions((prev) =>
+      prev.map((condition) =>
+        condition.id === id ? { ...condition, [field]: value } : condition
+      )
     );
   };
 
@@ -167,14 +175,18 @@ function App() {
                             { label: "If found", value: "found" },
                             { label: "If not found", value: "not_found" },
                           ]}
-                          value={collectionCondition}
-                          onChange={setCollectionCondition}
+                          value={condition.collectionCondition || ""}
+                          onChange={(value) =>
+                            handleConditionChange(condition.id, "collectionCondition", value)
+                          }
                         />
                         <TextField
                           label="Collections"
                           placeholder="Enter collections"
-                          value={collectionInput}
-                          onChange={setCollectionInput}
+                          value={condition.collectionInput || ""}
+                          onChange={(value) =>
+                            handleConditionChange(condition.id, "collectionInput", value)
+                          }
                           autoComplete="off"
                         />
                       </div>
@@ -187,15 +199,19 @@ function App() {
                             { label: "More than", value: "more_than" },
                             { label: "Less than", value: "less_than" },
                           ]}
-                          value={productAmount}
-                          onChange={setProductAmount}
+                          value={condition.productAmount || ""}
+                          onChange={(value) =>
+                            handleConditionChange(condition.id, "productAmount", value)
+                          }
                         />
                         <TextField
                           label="Amount"
                           type="number"
                           placeholder="Enter amount"
-                          value={productAmount}
-                          onChange={setProductAmount}
+                          value={condition.productAmount || ""}
+                          onChange={(value) =>
+                            handleConditionChange(condition.id, "productAmount", value)
+                          }
                           autoComplete="off"
                         />
                       </div>
