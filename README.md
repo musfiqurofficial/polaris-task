@@ -20,7 +20,7 @@ Follow these steps to set up the project:
 
 ```bash
 # Clone the project repository
-$ git clone <repository-url>
+$ git clone https://github.com/musfiqurofficial/polaris-task.git
 
 # Navigate to the project directory
 $ cd polaris-task
