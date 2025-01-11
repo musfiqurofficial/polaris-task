@@ -19,6 +19,7 @@ function Payment({
   onChange: (data: {
     selectedMethods: string[];
     orderNumbers: { [key: string]: string };
+    newNames: { [key: string]: string };
   }) => void;
 }) {
   const deselectedOptions = useMemo(
@@ -36,6 +37,7 @@ function Payment({
   const [orderNumbers, setOrderNumbers] = useState<{ [key: string]: string }>(
     {}
   );
+  const [newNames, setNewNames] = useState<{ [key: string]: string }>({});
   const [selected, setSelected] = useState("replace");
 
   const handleSelectChange = useCallback(
@@ -89,11 +91,17 @@ function Payment({
     },
     []
   );
+
+  const handleNameChange = useCallback(
+    (method: string, value: string) => {
+      setNewNames((prev) => ({ ...prev, [method]: value }));
+    },
+    []
+  );
   
   useEffect(() => {
-    onChange({ selectedMethods, orderNumbers });
-  }, [selectedMethods, orderNumbers, onChange]);
-
+    onChange({ selectedMethods, orderNumbers, newNames });
+  }, [selectedMethods, orderNumbers, newNames, onChange]);
   const textField = (
     <Autocomplete.TextField
       onChange={updateText}
@@ -123,59 +131,55 @@ function Payment({
         {selectedMethods.length > 0 ? (
           selectedMethods.map((method, index) => (
             <div key={index} className="flex items-center gap-2 mt-4">
-              <div className="w-full">
-                <div className="flex items-center gap-2">
-                  {sort && (
-                    <TextField
-                      label=""
-                      type="number"
-                      value={orderNumbers[method] || ""}
-                      onChange={(value) =>
-                        handleOrderNumberChange(method, value)
-                      }
-                      placeholder="Enter order number"
-                      autoComplete="off"
-                    />
-                  )}
+             <div className="w-full">
+  <div className="flex items-center gap-2">
+    {sort && (
+      <TextField
+        label=""
+        type="number"
+        value={orderNumbers[method] || ""}
+        onChange={(value) => handleOrderNumberChange(method, value)}
+        placeholder="Enter order number"
+        autoComplete="off"
+      />
+    )}
 
-                  <div
-                    className="w-full"
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      padding: "6px 10px",
-                      border: "1px solid #dfe3e8",
-                      borderRadius: "10px",
-                    }}
-                  >
-                    <Text as="span">{method}</Text>
-                  </div>
-                </div>
-                {rename && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <Select
-                      label=""
-                      tone="magic"
-                      options={renameOptions}
-                      onChange={handleSelectChange}
-                      value={selected}
-                    />
-                    <div className="w-full">
-                      <TextField
-                        label=""
-                        type="text"
-                        value={orderNumbers[method] || ""}
-                        onChange={(value) =>
-                          handleOrderNumberChange(method, value)
-                        }
-                        placeholder="New Payment name"
-                        autoComplete="off"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
+    <div
+      className="w-full"
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "6px 10px",
+        border: "1px solid #dfe3e8",
+        borderRadius: "10px",
+      }}
+    >
+      <Text as="span">{method}</Text>
+    </div>
+  </div>
+  {rename && (
+    <div className="mt-2 flex items-center gap-2">
+      <Select
+        label=""
+        tone="magic"
+        options={renameOptions}
+        onChange={handleSelectChange}
+        value={selected}
+      />
+      <div className="w-full">
+        <TextField
+          label=""
+          type="text"
+          value={newNames[method] || ""}
+          onChange={(value) => handleNameChange(method, value)}
+          placeholder="New Payment name"
+          autoComplete="off"
+        />
+      </div>
+    </div>
+  )}
+</div>
               <Button
                 icon={XIcon}
                 onClick={() => removePaymentMethod(method)}

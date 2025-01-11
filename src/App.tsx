@@ -46,6 +46,7 @@ function App() {
   const [paymentData, setPaymentData] = useState({
     selectedMethods: [] as string[],
     orderNumbers: {} as { [key: string]: string },
+    newNames: {} as { [key: string]: string },
   });
 
   const togglePopoverActive = useCallback(
@@ -56,6 +57,7 @@ function App() {
   const handlePaymentChange = (data: {
     selectedMethods: string[];
     orderNumbers: { [key: string]: string };
+    newNames: { [key: string]: string };
   }) => {
     setPaymentData(data);
   };
@@ -81,10 +83,7 @@ function App() {
       paymentData: {
         ...paymentData,
         orderNumbers: sort ? paymentData.orderNumbers : {},
-        newNames: rename ? Object.entries(paymentData.orderNumbers).reduce((acc, [method, orderNumber]) => {
-          acc[method] = orderNumber;
-          return acc;
-        }, {} as { [key: string]: string }) : {},
+        newNames: rename ? paymentData.newNames : {},
       },
       matchCondition,
       conditions: selectedConditions,
