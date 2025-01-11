@@ -89,7 +89,7 @@ function Payment({
     },
     []
   );
-
+  
   useEffect(() => {
     onChange({ selectedMethods, orderNumbers });
   }, [selectedMethods, orderNumbers, onChange]);

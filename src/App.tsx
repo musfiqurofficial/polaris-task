@@ -78,7 +78,14 @@ function App() {
     const formData = {
       ruleName,
       paymentMethods: { hide, sort, rename },
-      paymentData,
+      paymentData: {
+        ...paymentData,
+        orderNumbers: sort ? paymentData.orderNumbers : {},
+        newNames: rename ? Object.entries(paymentData.orderNumbers).reduce((acc, [method, orderNumber]) => {
+          acc[method] = orderNumber;
+          return acc;
+        }, {} as { [key: string]: string }) : {},
+      },
       matchCondition,
       conditions: selectedConditions,
     };
